@@ -16,11 +16,17 @@ namespace Supermarket
     public partial class MainForm : Form
     {
         internal PayModeDAO payModeDAO;
+        internal CategoriesDAO categoriesDAO;
+        internal ProductsDAO productsDAO;
         public MainForm()
         {
             payModeDAO = new PayModeDAO();
+            categoriesDAO = new CategoriesDAO();
+            productsDAO = new ProductsDAO();
             InitializeComponent();
-            payModeDAO.AddPayMode(new View.PayMode(null, "Cash", "No Observation"));
+            payModeDAO.AddPayMode(new Model.PayMode(null, "Cash", "No Observation"));
+            categoriesDAO.AddCategories(new Model.Categories(null, "SeaFood", "Various kinds"));
+            productsDAO.AddProducts(new Model.Products(null, "Fish", 77, 32, 1));
         }
 
         private void ExitMenuItem_Click(object sender, EventArgs e)
@@ -35,9 +41,23 @@ namespace Supermarket
 
         private void PayModeMenuItem_Click(object sender, EventArgs e)
         {
-            PayModeForm formPayMode = new PayModeForm(ref payModeDAO);
+            PayModeForm formPayMode = new(ref payModeDAO);
             formPayMode.MdiParent = this;
             formPayMode.Show();
+        }
+
+        private void CategoriesMenuItem_Click(object sender, EventArgs e)
+        {
+            CategoriesForm formCategories = new CategoriesForm(ref categoriesDAO);
+            formCategories.MdiParent = this;
+            formCategories.Show();
+        }
+
+        private void ProductsMenuItem_Click(object sender, EventArgs e)
+        {
+            ProductsForm formProducts = new ProductsForm(ref productsDAO);
+            formProducts.MdiParent = this;
+            formProducts.Show();
         }
     }
 }

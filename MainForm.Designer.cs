@@ -80,6 +80,7 @@
             ProductsMenuItem.Name = "ProductsMenuItem";
             ProductsMenuItem.Size = new Size(224, 26);
             ProductsMenuItem.Text = "Products";
+            ProductsMenuItem.Click += ProductsMenuItem_Click;
             // 
             // ProvidersMenuItem
             // 
@@ -92,6 +93,7 @@
             CategoriesMenuItem.Name = "CategoriesMenuItem";
             CategoriesMenuItem.Size = new Size(224, 26);
             CategoriesMenuItem.Text = "Categories";
+            CategoriesMenuItem.Click += CategoriesMenuItem_Click;
             // 
             // PayModeMenuItem
             // 
@@ -129,7 +131,7 @@
             // AboutMenuItem
             // 
             AboutMenuItem.Name = "AboutMenuItem";
-            AboutMenuItem.Size = new Size(224, 26);
+            AboutMenuItem.Size = new Size(133, 26);
             AboutMenuItem.Text = "About";
             AboutMenuItem.Click += AboutMenuItem_Click;
             // 

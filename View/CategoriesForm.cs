@@ -5,36 +5,42 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace Supermarket.View
 {
-    public partial class PayModeForm : Form
+    public partial class CategoriesForm : Form
     {
-        private readonly PayModeDAO payModeDAO;
+        private readonly CategoriesDAO categoriesDAO;
         private bool EditMode;
         private bool IsNew;
-        internal PayModeForm(ref PayModeDAO payModeDAO)
+        internal CategoriesForm(ref CategoriesDAO categoriesDAO)
         {
             InitializeComponent();
-            this.payModeDAO = payModeDAO;
-            LoadPayModeList();
+            this.categoriesDAO = categoriesDAO;
+            LoadCategoriesList();
             EditMode = false;
             IsNew = false;
         }
-        private void LoadPayModeList()
+        private void LoadCategoriesList()
         {
-            DgPayMode.Rows.Clear();
-            foreach (KeyValuePair<int, PayMode> payModeKV in this.payModeDAO.GetPayModeList())
+            DgCategories.Rows.Clear();
+            foreach (KeyValuePair<int, Categories> categoriesKV in this.categoriesDAO.GetCategoriesList())
             {
-                DgPayMode.Rows.Add(payModeKV.Value.Id, payModeKV.Value.Name, payModeKV.Value.Observation);
-
+                DgCategories.Rows.Add(categoriesKV.Value.Id,
+                                      categoriesKV.Value.Name,
+                                      categoriesKV.Value.Description);
             }
+        }
+
+        public CategoriesForm()
+        {
+            InitializeComponent();
         }
 
         private void BtnClose_Click(object sender, EventArgs e)
@@ -42,19 +48,11 @@ namespace Supermarket.View
             this.Close();
         }
 
-        private void DgPayMode_Click(object sender, EventArgs e)
+        private void DgCategories_Click(object sender, EventArgs e)
         {
-            txtId.Text = DgPayMode.CurrentRow.Cells[0].Value.ToString();
-            txtName.Text = DgPayMode.CurrentRow.Cells[1].Value.ToString();
-            txtObserv.Text = DgPayMode.CurrentRow.Cells[2].Value.ToString();
-        }
-
-        private void BtnClose_Click_1(object sender, EventArgs e)
-        {
-            txtId.Text = DgPayMode.CurrentRow.Cells[0].Value.ToString();
-            txtName.Text = DgPayMode.CurrentRow.Cells[1].Value.ToString();
-            txtObserv.Text = DgPayMode.CurrentRow.Cells[2].Value.ToString();
-
+            txtId.Text = DgCategories.CurrentRow.Cells[0].Value.ToString();
+            txtName.Text = DgCategories.CurrentRow.Cells[1].Value.ToString();
+            txtDesc.Text = DgCategories.CurrentRow.Cells[2].Value.ToString();
         }
 
         private void BtnNew_Click(object sender, EventArgs e)
@@ -66,16 +64,16 @@ namespace Supermarket.View
             }
             else
             {
-                if (SavePayMode() == false)
+                if (SaveCategories() == false)
                 {
                     return;
-                };
-                IsNew = false;
+                }
                 EditMode = false;
+                IsNew = false;
             }
             txtId.Text = "";
             txtName.Text = "";
-            txtObserv.Text = "";
+            txtDesc.Text = "";
             ActivateControls(EditMode);
         }
         private void ActivateControls(bool state)
@@ -95,13 +93,13 @@ namespace Supermarket.View
                 BtnEdit.Image = Resources.edit;
             }
             txtName.Enabled = state;
-            txtObserv.Enabled = state;
-            DgPayMode.Enabled = !state;
+            txtDesc.Enabled = state;
+            DgCategories.Enabled = !state;
             BtnDelete.Enabled = !state;
             BtnClose.Enabled = !state;
             txtName.Focus();
         }
-        private bool SavePayMode()
+        private bool SaveCategories()
         {
             if (!IsNameFilled())
             {
@@ -109,33 +107,31 @@ namespace Supermarket.View
             }
             if (IsNew == true)
             {
-                PayMode payMode = new(null, txtName.Text, txtObserv.Text);
-                if (payModeDAO.AddPayMode(payMode) == false)
+                Categories categories = new(null, txtName.Text, txtDesc.Text);
+                if (categoriesDAO.AddCategories(categories) == false)
                 {
-                    MessageBox.Show("Error to save", "Alert",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                    MessageBox.Show("Error. Error to save", "Alert",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
-                MessageBox.Show("Pay mode save susessfuly", "Alert",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-                LoadPayModeList();
+                MessageBox.Show("Info. Category save susessfuly", "Alert",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LoadCategoriesList();
             }
             else
             {
                 int id = Int32.Parse(txtId.Text);
-                PayMode payMode = payModeDAO.GetPayMode(id);
-                if (payMode != null)
+                Categories categories = categoriesDAO.GetCategories(id);
+                if (categories != null)
                 {
                     if (!IsNameFilled())
                     {
                         return false;
                     }
-                    payMode.Name = txtName.Text;
-                    payMode.Observation = txtObserv.Text;
-                    payModeDAO.UpdatePayMode(id, payMode);
-                    LoadPayModeList();
+                    categories.Name = txtName.Text;
+                    categories.Description = txtDesc.Text;
+                    categoriesDAO.UpdateCategories(id, categories);
+                    LoadCategoriesList();
                     return true;
                 }
                 return false;
@@ -146,9 +142,8 @@ namespace Supermarket.View
         {
             if ((txtName.Text).Trim().Length == 0)
             {
-                MessageBox.Show("The Pay mode name is required", "Alert",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("Error. Category name is required", "Alert",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtName.Focus();
                 return false;
             }
@@ -165,10 +160,10 @@ namespace Supermarket.View
             {
                 if (txtName.Text.Trim().Length == 0)
                 {
-                    MessageBox.Show("Select one register of the list", "Alert",
+                    MessageBox.Show("Info. Select one register of the list", "Alert",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
-                };
+                }
                 EditMode = true;
                 IsNew = false;
             }
@@ -179,14 +174,14 @@ namespace Supermarket.View
         {
             if (txtName.Text.Trim().Length == 0)
             {
-                MessageBox.Show("Select one register of the list", "Alert",
+                MessageBox.Show("Info. Select one register of the list", "Alert",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Exclamation);
                 return;
             }
             else
             {
-                string message = "Are you sure to delete the registry?";
+                string message = "Confirm. Are you sure to delete the registry?";
                 string title = "Alert";
                 MessageBoxButtons buttons = MessageBoxButtons.YesNo;
                 MessageBoxIcon questions = MessageBoxIcon.Question;
@@ -194,13 +189,13 @@ namespace Supermarket.View
                 if (result == DialogResult.Yes)
                 {
                     int id = Int32.Parse(txtId.Text);
-                    if (payModeDAO.RemovePayMode(id) == false)
+                    if (categoriesDAO.RemoveCategories(id) == false)
                     {
-                        MessageBox.Show("Error to delete", "Alert",
+                        MessageBox.Show("Error. Error to delete", "Alert",
                             MessageBoxButtons.OK,
                             MessageBoxIcon.Error);
                     }
-                    MessageBox.Show("Record is deleted", "Alert",
+                    MessageBox.Show("Info. Record is deleted", "Alert",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Exclamation);
                 }
@@ -208,7 +203,7 @@ namespace Supermarket.View
                 {
                     return;
                 }
-                LoadPayModeList();
+                LoadCategoriesList();
             }
         }
     }

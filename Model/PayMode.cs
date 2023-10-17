@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Supermarket.View
+namespace Supermarket.Model
 {
     internal class PayMode
     {
